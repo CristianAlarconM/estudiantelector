@@ -71,13 +71,15 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h2>Registro de Participación<br>Ceremonia Estudiante Lector</h2>
 
-    <!-- Espacio para agregar una imagen -->
+    <!-- Imagen -->
     <div style="text-align:center; margin-bottom:20px;">
-      <img id="imagenEvento" src="https://i.ibb.co/WvqsYVfD/ceremonia.png" style="max-width:70%; border-radius:15px; display:block; margin:auto;" />
+      <img id="imagenEvento" src="https://i.ibb.co/WvqsYVfD/ceremonia.png" 
+           style="max-width:70%; border-radius:15px; display:block; margin:auto;" />
     </div>
 
     <form id="registroForm">
@@ -136,7 +138,7 @@
   </div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycby-0UAZRPTi6zjKTFf7aFOlj2TOrQqXJYqKxY8FyGNJC4iOBPLejv5e3oyIqxX-Q_VuLg/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycby-0UAZRPTi6zjKTFf7aFOlj2TOrQqXJYqKxY8FyGNJC4iOBPLejv5e3oyIqxX-Q_VuLg/exec"; // <- CAMBIA ESTO
 
     document.getElementById("registroForm").addEventListener("submit", async function(e) {
       e.preventDefault();
@@ -145,24 +147,35 @@
       const invitado1 = document.getElementById("invitado1").value;
       const invitado2 = document.getElementById("invitado2").value;
 
-      const data = { estudiante, invitado1, invitado2 };
+      const formBody = new URLSearchParams();
+      formBody.append("estudiante", estudiante);
+      formBody.append("invitado1", invitado1);
+      formBody.append("invitado2", invitado2);
 
       try {
-        await fetch(scriptURL, {
+        const resp = await fetch(scriptURL, {
           method: "POST",
-          body: JSON.stringify(data),
-          headers: { "Content-Type": "application/json" }
+          body: formBody
         });
 
-        alert("Registro enviado con éxito.");
-        this.reset();
+        const json = await resp.json().catch(() => null);
+
+        if (resp.ok && json && json.result === "success") {
+          alert("Registro enviado con éxito.");
+          this.reset();
+        } else if (resp.ok) {
+          alert("Registro enviado con éxito.");
+          this.reset();
+        } else {
+          alert("Ocurrió un error al enviar el registro.");
+        }
 
       } catch (error) {
         alert("Ocurrió un error al enviar el registro.");
       }
     });
   </script>
-</body>
 
+</body>
 </html>
 
