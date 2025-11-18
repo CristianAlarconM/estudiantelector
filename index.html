@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro de Evento</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -28,6 +29,7 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       max-width: 500px;
       width: 100%;
+      transition: all 0.4s ease;
     }
 
     h2 {
@@ -69,19 +71,47 @@
     button:hover {
       background: #ff3e6b;
     }
+
+    /* TARJETA DE MENSAJE */
+    .mensaje {
+      display: none;
+      padding: 25px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 0 18px rgba(0,0,0,0.2);
+      text-align: center;
+      animation: fadeSlide 0.6s ease forwards;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .mensaje h3 {
+      font-size: 24px;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    .mensaje p {
+      font-size: 18px;
+      color: #666;
+    }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <div class="container" id="contenedor">
+
     <h2>Registro de Participación<br>Ceremonia Estudiante Lector</h2>
 
-    <!-- Imagen -->
     <div style="text-align:center; margin-bottom:20px;">
-      <img id="imagenEvento" src="https://i.ibb.co/WvqsYVfD/ceremonia.png" 
+      <img src="https://i.ibb.co/WvqsYVfD/ceremonia.png"
            style="max-width:70%; border-radius:15px; display:block; margin:auto;" />
     </div>
 
+    <!-- FORMULARIO -->
     <form id="registroForm">
 
       <label>Nombre del Estudiante</label>
@@ -135,10 +165,18 @@
 
       <button type="submit">Registrar</button>
     </form>
+
+    <!-- MENSAJE (se muestra al finalizar) -->
+    <div class="mensaje" id="mensajeFinal">
+      <h3>¡Registro enviado!</h3>
+      <p>Gracias por confirmar su asistencia.</p>
+      <p>Ya no es posible volver a registrar este estudiante.</p>
+    </div>
+
   </div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycby-0UAZRPTi6zjKTFf7aFOlj2TOrQqXJYqKxY8FyGNJC4iOBPLejv5e3oyIqxX-Q_VuLg/exec"; // <- CAMBIA ESTO
+    const scriptURL = "https://script.google.com/macros/s/AKfycbw_FSAllCGtOSgnSn1M3sJywfHIWgGRVqmmERbLmEKHd04jaNW5BeZkPaGUdZeWYZen4A/exec";
 
     document.getElementById("registroForm").addEventListener("submit", async function(e) {
       e.preventDefault();
@@ -158,24 +196,33 @@
           body: formBody
         });
 
-        const json = await resp.json().catch(() => null);
+        const data = await resp.json();
 
-        if (resp.ok && json && json.result === "success") {
-          alert("Registro enviado con éxito.");
-          this.reset();
-        } else if (resp.ok) {
-          alert("Registro enviado con éxito.");
-          this.reset();
+        if (data.result === "exists") {
+          mostrarMensaje("Este estudiante ya fue registrado.", false);
         } else {
-          alert("Ocurrió un error al enviar el registro.");
+          mostrarMensaje("¡Registro enviado con éxito!");
         }
 
       } catch (error) {
-        alert("Ocurrió un error al enviar el registro.");
+        alert("Error al enviar el registro.");
       }
     });
+
+    function mostrarMensaje(texto, exito = true) {
+      document.getElementById("registroForm").style.display = "none";
+
+      const mensaje = document.getElementById("mensajeFinal");
+      mensaje.querySelector("h3").textContent = exito ? "¡Registro enviado!" : "Registro duplicado";
+      mensaje.querySelector("p").innerHTML = exito
+        ? "Gracias por confirmar su asistencia.<br>Ya no es posible volver a registrar este estudiante."
+        : "Este estudiante ya tiene un registro enviado.<br>No se pueden duplicar envíos.";
+
+      mensaje.style.display = "block";
+    }
   </script>
 
 </body>
 </html>
+
 
